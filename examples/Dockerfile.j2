@@ -1,0 +1,14 @@
+FROM {{ _source["name"] }}:{{ _source["tag"] }}
+# jinja filter work too
+MAINTAINER {{ maintainer | default('user@bedag.ch') }}
+
+LABEL \{% for tag in _dest['tags']|map('replace','.','_')|list %}
+  "tag.{{ tag }}.repository"="{{ _dest['namespace'] }}/{{ _dest['name'] }}" \
+  "tag.{{ tag }}.source"="{{ _source["name"] }}:{{ _source["tag"] }}" \
+  "tag.{{ tag }}.git.repo"="{{ git_repo }}" \
+  "tag.{{ tag }}.git.ref"="{{ git_ref }}" \
+  "tag.{{ tag }}.git.hash"="{{ git_hash }}" \
+{%- endfor %}
+  "maintainer"="{{ maintainer | default('user@bedag.ch') }}"
+
+COPY lorem.ipsum /lorem.ipsum

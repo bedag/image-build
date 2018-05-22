@@ -1,0 +1,16 @@
+---
+# variables set on a variant override variables
+# set in the main image-build.yml, but just
+# on this specific source_tag
+variables:
+  version: 3.0
+  maintainer: "Someone else <someone.else@bedag.ch>"
+tags:
+  # disable snapshot tags for this source_tag
+  # tag templates defined on a variant override
+  # tag templates of the main image-build.yml
+  - template: 'snapshot-{{ _source["tag"] }}-{{ _timestamp }}'
+    negate: true
+  # add a tag template that will be added always,
+  # but just for this specific source_tag
+  - template: 'variant-{{ version }}'

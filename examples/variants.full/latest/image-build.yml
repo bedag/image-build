@@ -1,0 +1,5 @@
+---
+template_file: Dockerfile.alt.j2
+# nested variables are also possible
+variables:
+  note: 'Maintained by {{ maintainer }}'

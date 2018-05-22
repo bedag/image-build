@@ -1,0 +1,69 @@
+---
+yaml_templates:
+  master_rc: &master_rc ['^(\d+\.)+\d+(RC[0-9])*$','^master$']
+
+builds:
+  # minimal build config
+  # description:
+  #   uses the "latest" tag of the source and builds
+  #   a "latest" tag for the destination
+  # expected result:
+  #   registry.mgmtbi.ch/bedag_dcs/test-image-build:latest
+  - name: test-image-build
+    source:
+      name: alpine
+    namespace: bedag
+
+  # full build config
+  - name: test-image-build
+    source:
+      name: python
+      tags: [ '2-alpine','3.4-alpine','3.5-alpine','latest' ]
+      primary: '2-alpine'
+    variants_dir: 'variants.full'
+    template_file: Dockerfile.full.j2
+    namespace: bedag
+    tags:
+      # add this tag to every image build
+      - template: '{{ _source["tag"] }}-{{ git_ref }}-{{ _timestamp }}'
+      # only add this tag if the selector provided on the
+      # command line does not match the provided regex
+      # examples for when this tag would NOT be added:
+      #   - master
+      #   - 2.0.5
+      #   - 3.6.1RC3
+      - template: 'snapshot-{{ _source["tag"] }}-{{ _timestamp }}'
+        selectors: *master_rc
+        negate: true
+      # only add this tag if the selector provided on the
+      # command line does match the provided regex
+      # examples for when this tag would be ADDED:
+      #   - master
+      #   - 2.0.5
+      #   - 3.6.1RC3
+      - template: '{{ _source["tag"] }}-{{ git_ref }}'
+        selectors: *master_rc
+      # only add this tag if the selector provided on the
+      # command line does match the provided regex and the
+      # image is based on the primary source tag
+      # (in this case 3.4)
+      #   - 2.0.5
+      - template: '{{ git_ref }}'
+        selectors: ['^(\d+\.)+\d+$']
+        only_primary: true
+      # always add this tag to the primary source tag
+      # (in this case 3.4)
+      - template: 'fixed-value-primary'
+        only_primary: true
+    variables:
+      maintainer: 'Betriebssysteme & Cloud <syx.bbz@bedag.ch>'
+
+  - name: test-image-build
+    source:
+      name: alpine
+    namespace: registry.mgmtbi.ch/bedag_dcs
+    tags:
+      # tag template that should never be applicable
+      # used to test the --ignore-empty option
+      - template: 'never'
+        selectors: ['never-ever-applicable']

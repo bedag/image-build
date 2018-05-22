@@ -1,0 +1,10 @@
+# Although NOT recommended, the Dockerfile is not required 
+# to use the Docker image source repository:tag defined in the build
+# configuration.
+# Really, don't do that, its just here for testing / demonstration
+# purposes.
+# Well, I warned you.
+FROM ruby:2.4-alpine
+MAINTAINER {{ maintainer }}
+
+LABEL "note"="{{ note }}"
